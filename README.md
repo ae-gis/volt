@@ -53,3 +53,40 @@ func main(){
 }
 
 ``` 
+
+
+- Use a Breaker
+
+```go
+package main
+import (
+    "net/http"
+    "github.com/hashicorp/go-cleanhttp"
+    "gitlab.warungpintar.co/back-end/libwp/breaker"
+    "gitlab.warungpintar.co/back-end/libwp/log"
+)
+
+func main() {
+    endpoint := `www.google.com`
+    cb := breaker.NewBreaker(
+        "",
+        100,
+        10,
+    )
+    var res *http.Response
+    err := cb.Execute(func() (err error) {
+        client := cleanhttp.DefaultClient()
+        req, _ := http.NewRequest(http.MethodGet,
+            endpoint, nil)
+        res, err = client.Do(req)
+        return err
+    })
+    if err != nil {
+        log.Error("Error",
+            log.Field("error", err.Error()),
+        )
+        panic(err)
+    }
+}
+```
+
